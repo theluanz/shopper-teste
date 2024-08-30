@@ -19,8 +19,8 @@ Para rodar o projeto localmente, siga os passos abaixo. Certifique-se de ter o D
 1. **Clonar o repositório**:
 
    ```bash
-   git clone https://github.com/seu-repositorio/nome-do-projeto.git
-   cd nome-do-projeto
+   git clone https://github.com/theluanz/shopper-teste.git
+   cd shopper-teste
    ```
 
 2. **Configurar variáveis de ambiente**:
