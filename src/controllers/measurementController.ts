@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import Measurement from '../models/measurement';
-import Customer from '../models/customer';
 import { Op } from 'sequelize';
 import { isValid, parseISO, startOfMonth, endOfMonth } from 'date-fns';
 
@@ -48,14 +47,6 @@ class MeasurementController {
       });
     }
 
-    const customer = await Customer.findOne({ where: { customer_code } });
-    if (!customer) {
-      return res.status(404).json({
-        error_code: 'INVALID_DATA',
-        error_description: 'Customer not found',
-      });
-    }
-
     const startOfMonthDate = startOfMonth(date);
     const endOfMonthDate = endOfMonth(date);
 
@@ -91,9 +82,8 @@ class MeasurementController {
       measure_datetime: date,
       measure_type,
       image_url: image_url,
-      confirmed: 0,
+      has_confirmed: false,
     });
-    await measurement.$set('customers', [customer.customer_code]);
 
     res.status(201).json({
       image_url,
@@ -102,7 +92,55 @@ class MeasurementController {
     });
   }
   static async confirmMeasure(req: Request, res: Response) {}
-  static async getMeasurementsByCustomer(req: Request, res: Response) {}
+  static async getMeasurementsByCustomer(req: Request, res: Response) {
+    try {
+      const customerCode = req.params.customerCode;
+      const { measure_type } = req.query;
+
+      const filterConditions: any = {
+        customer_code: customerCode,
+      };
+
+      if (measure_type) {
+        const validMeasureType = (measure_type as string).toUpperCase();
+        if (['WATER', 'GAS'].includes(validMeasureType)) {
+          filterConditions.measure_type = validMeasureType;
+        } else {
+          return res.status(400).json({
+            error_code: 'INVALID_TYPE',
+            error_description: 'Tipo de medição não permitida',
+          });
+        }
+      }
+
+      const measurements = await Measurement.findAll({
+        where: filterConditions,
+        order: [['measure_datetime', 'DESC']],
+        attributes: [
+          'measure_uuid',
+          'measure_datetime',
+          'measure_type',
+          'has_confirmed',
+          'image_url',
+        ],
+      });
+
+      if (!measurements || measurements.length === 0) {
+        return res.status(404).json({
+          error_code: 'MEASURES_NOT_FOUND',
+          error_description: 'Nenhuma leitura encontrada',
+        });
+      }
+
+      return res.status(200).json({
+        customer_code: customerCode,
+        measures: measurements,
+      });
+    } catch (error) {
+      console.error('Error fetching measurements:', error);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
 }
 
 export default MeasurementController;

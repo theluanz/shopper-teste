@@ -1,5 +1,4 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsToMany } from 'sequelize-typescript';
-import Customer from './customer';
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table
 export default class Measurement extends Model {
@@ -10,21 +9,40 @@ export default class Measurement extends Model {
   })
   measure_uuid!: string;
 
-  @Column(DataType.INTEGER)
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
   measure_value!: number;
 
-  @Column(DataType.DATE)
+  @Column({
+    type: DataType.DATE,
+    allowNull: false,
+  })
   measure_datetime!: Date;
 
-  @Column(DataType.STRING)
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
   measure_type!: string;
 
-  @Column(DataType.STRING)
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
   image_url!: string;
 
-  @Column(DataType.INTEGER)
-  confirmed!: number;
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  })
+  has_confirmed!: boolean;
 
-  @BelongsToMany(() => Customer, 'MeasurementCustomer', 'measurement_id', 'customer_id')
-  customers!: Customer[];
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  customer_code!: string;
 }
