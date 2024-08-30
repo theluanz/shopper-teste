@@ -91,7 +91,50 @@ class MeasurementController {
       measure_uuid: measurement.measure_uuid,
     });
   }
-  static async confirmMeasure(req: Request, res: Response) {}
+
+  static async confirmMeasure(req: Request, res: Response) {
+    try {
+      const { measure_uuid, confirmed_value } = req.body;
+
+      if (typeof measure_uuid !== 'string' || typeof confirmed_value !== 'number') {
+        return res.status(400).json({
+          error_code: 'INVALID_DATA',
+          error_description: 'Tipo de dado inválido para measure_uuid ou confirmed_value',
+        });
+      }
+
+      const measurement = await Measurement.findOne({ where: { measure_uuid } });
+
+      if (!measurement) {
+        return res.status(404).json({
+          error_code: 'MEASURE_NOT_FOUND',
+          error_description: 'Medição não encontrada',
+        });
+      }
+
+      if (measurement.has_confirmed) {
+        return res.status(409).json({
+          error_code: 'CONFIRMATION_DUPLICATE',
+          error_description: 'Leitura do mês já realizada',
+        });
+      }
+
+      measurement.measure_value = confirmed_value;
+      measurement.has_confirmed = true;
+      await measurement.save();
+
+      return res.status(200).json({
+        sucess: true,
+      });
+    } catch (error) {
+      console.error('Error confirming measurement:', error);
+      return res.status(500).json({
+        error_code: 'INTERNAL_SERVER_ERROR',
+        error_description: 'Erro interno no servidor',
+      });
+    }
+  }
+
   static async getMeasurementsByCustomer(req: Request, res: Response) {
     try {
       const customerCode = req.params.customerCode;
