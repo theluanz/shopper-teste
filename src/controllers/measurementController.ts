@@ -4,7 +4,7 @@ import { Op } from 'sequelize';
 import { isValid, parseISO, startOfMonth, endOfMonth } from 'date-fns';
 
 import { GeminiApi } from '../services/GeminiApi';
-import { saveImage } from '../services/SaveImage';
+import { getImageBuffer, saveImage } from '../services/Image';
 const geminiAPI = new GeminiApi();
 
 class MeasurementController {
@@ -21,16 +21,6 @@ class MeasurementController {
       return res.status(400).json({
         error_code: 'INVALID_DATA',
         error_description: 'Invalid measure_type value',
-      });
-    }
-
-    let imageBuffer;
-    try {
-      imageBuffer = Buffer.from(image, 'base64');
-    } catch (err) {
-      return res.status(400).json({
-        error_code: 'INVALID_DATA',
-        error_description: 'Invalid base64 image data',
       });
     }
 
@@ -64,6 +54,14 @@ class MeasurementController {
       return res.status(400).json({
         error_code: 'DOUBLE_REPORT',
         error_description: 'Leitura do mês já realizada',
+      });
+    }
+
+    const imageBuffer = getImageBuffer(image);
+    if (!imageBuffer) {
+      return res.status(400).json({
+        error_code: 'INVALID_DATA',
+        error_description: 'Invalid base64 image data',
       });
     }
 

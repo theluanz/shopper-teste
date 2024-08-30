@@ -14,3 +14,11 @@ export async function saveImage(imageBuffer: Buffer) {
 
   return filePath;
 }
+
+export function getImageBuffer(image: string): Buffer | null {
+  try {
+    return Buffer.from(image, 'base64');
+  } catch {
+    return null;
+  }
+}
