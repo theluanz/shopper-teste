@@ -38,7 +38,7 @@ export class GeminiApi {
         },
       },
       {
-        text: 'Extract the numerical value as a integer displayed on the meter in the image, which shows a gas or water measurement. Return only the numerical value shown on the display, without any additional text.',
+        text: "Extract the integer numerical value displayed on the meter in the image, which may show a gas or water measurement. Return only the numerical value shown on the display. If it's not possible to read the value, return -1",
       },
     ]);
 
