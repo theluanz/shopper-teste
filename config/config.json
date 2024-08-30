@@ -1,0 +1,9 @@
+{
+  "development": {
+    "dialect": "postgres",
+    "host": "db",
+    "username": "admin",
+    "password": "admin",
+    "database": "shopper_db"
+  }
+}

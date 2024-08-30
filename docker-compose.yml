@@ -1,8 +1,10 @@
+version: '3.8'
+
 services:
   app:
     build: .
     ports:
-      - '80:80'
+      - '3000:3000'
     depends_on:
       - db
     environment:
@@ -13,7 +15,11 @@ services:
       - DB_NAME=shopper_db
     volumes:
       - .:/usr/src/app
-    command: ['npm', 'run', 'dev']
+    command: >
+      sh -c "
+        npx sequelize-cli db:migrate &&
+        npm run dev
+      "
 
   db:
     image: postgres:14
